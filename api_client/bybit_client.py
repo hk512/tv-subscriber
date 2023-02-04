@@ -59,7 +59,7 @@ class BybitClient(object):
             if response_data["ret_code"] != 0:
                 return response_data
 
-    def get_position_size(self, symbol, side):
+    def get_position_size(self, symbol) -> {str: float}:
         response_data = self.get_positions(symbol=symbol)
 
         if response_data is None:
@@ -68,12 +68,9 @@ class BybitClient(object):
         result = response_data["result"]
 
         if symbol[-4:] == "USDT":
-            if side == "Buy":
-                return result[0]["size"]
-            elif side == "Sell":
-                return result[1]["size"]
+            return {"buy": result[0]["size"], "sell": result[1]["size"]}
         elif symbol[-3:] == "USD":
-            if side == result["side"]:
-                return result["size"]
+            if result["side"] == "Buy":
+                return {"buy": result["size"], "sell": 0}
             else:
-                return 0
+                return {"buy": 0, "sell": result["size"]}
