@@ -1,7 +1,7 @@
 import configparser
 
 conf = configparser.ConfigParser()
-conf.read("config.ini")
+conf.read("./config/config.ini")
 
 api_key = conf["bybit"]["api_key"]
 api_secret = conf["bybit"]["api_secret"]
