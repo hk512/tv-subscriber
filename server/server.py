@@ -1,4 +1,5 @@
 import ipaddress
+import logging
 
 from flask import abort
 from flask import Flask
@@ -9,6 +10,7 @@ from controller.trader import Trader
 from config import config
 
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
 # allowed ip address
 ALLOW_NETWORKS = ["52.89.214.238", "34.212.75.30", "54.218.53.128", "52.32.178.7"]
@@ -28,6 +30,9 @@ def before_request():
 @app.route("/", methods=["POST"])
 def run():
     signal = request.data.decode()
+
+    logger.info({"action": "run", "signal": signal})
+
     trader = Trader(
         api_key=config.api_key,
         api_secret=config.api_secret,
