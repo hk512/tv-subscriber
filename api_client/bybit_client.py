@@ -1,4 +1,8 @@
+import logging
+
 import pybybit
+
+logger = logging.getLogger(__name__)
 
 
 class BybitClient(object):
@@ -8,13 +12,43 @@ class BybitClient(object):
         self.testnet = testnet
 
     def order_buy(self, symbol, size, reduce_only=False):
+        logger.info(
+            {
+                "action": "order_buy",
+                "symbol": symbol,
+                "size": size,
+                "reduce_only": reduce_only,
+            }
+        )
         return self.order(symbol=symbol, side="Buy", size=size, reduce_only=reduce_only)
 
     def order_sell(self, symbol, size, reduce_only=False):
-        return self.order(symbol=symbol, side="Sell", size=size, reduce_only=reduce_only)
+        logger.info(
+            {
+                "action": "order_sell",
+                "symbol": symbol,
+                "size": size,
+                "reduce_only": reduce_only,
+            }
+        )
+        return self.order(
+            symbol=symbol, side="Sell", size=size, reduce_only=reduce_only
+        )
 
     def order(self, symbol, side, size, reduce_only=False):
-        client = pybybit.API(key=self.api_key, secret=self.api_secret, testnet=self.testnet)
+        logger.info(
+            {
+                "action": "order",
+                "symbol": symbol,
+                "side": side,
+                "size": size,
+                "reduce_only": reduce_only,
+            }
+        )
+
+        client = pybybit.API(
+            key=self.api_key, secret=self.api_secret, testnet=self.testnet
+        )
 
         if symbol[-4:] == "USDT":
             res = client.rest.linear.private_order_create(
@@ -39,13 +73,19 @@ class BybitClient(object):
         else:
             return None
 
+        logger.info({"action": "order", "status_code": res.status_code})
+
         if res.status_code == 200:
             response_data = res.json()
+            logger.info({"action": "order", "response_data": response_data})
             if response_data["ret_code"] != 0:
                 return response_data
 
     def get_positions(self, symbol):
-        client = pybybit.API(key=self.api_key, secret=self.api_secret, testnet=self.testnet)
+        logger.info({"action": "get_positions", "symbol": symbol})
+        client = pybybit.API(
+            key=self.api_key, secret=self.api_secret, testnet=self.testnet
+        )
 
         if symbol[-4:] == "USDT":
             res = client.rest.linear.private_position_list(symbol=symbol)
@@ -54,8 +94,11 @@ class BybitClient(object):
         else:
             return None
 
+        logger.info({"action": "get_positions", "status_code": res.status_code})
+
         if res.status_code == 200:
             response_data = res.json()
+            logger.info({"action": "get_positions", "response_data": response_data})
             if response_data["ret_code"] != 0:
                 return response_data
 
@@ -68,9 +111,15 @@ class BybitClient(object):
         result = response_data["result"]
 
         if symbol[-4:] == "USDT":
-            return {"buy": result[0]["size"], "sell": result[1]["size"]}
+            position_size = {"buy": result[0]["size"], "sell": result[1]["size"]}
         elif symbol[-3:] == "USD":
             if result["side"] == "Buy":
-                return {"buy": result["size"], "sell": 0}
+                position_size = {"buy": result["size"], "sell": 0}
             else:
-                return {"buy": 0, "sell": result["size"]}
+                position_size = {"buy": 0, "sell": result["size"]}
+        else:
+            return None
+
+        logger.info({"action": "get_position_size", "position_size": position_size})
+
+        return position_size
