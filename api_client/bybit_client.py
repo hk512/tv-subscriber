@@ -78,7 +78,7 @@ class BybitClient(object):
         if res.status_code == 200:
             response_data = res.json()
             logger.info({"action": "order", "response_data": response_data})
-            if response_data["ret_code"] != 0:
+            if response_data["ret_code"] == 0:
                 return response_data
 
     def get_positions(self, symbol):
@@ -99,7 +99,7 @@ class BybitClient(object):
         if res.status_code == 200:
             response_data = res.json()
             logger.info({"action": "get_positions", "response_data": response_data})
-            if response_data["ret_code"] != 0:
+            if response_data["ret_code"] == 0:
                 return response_data
 
     def get_position_size(self, symbol) -> {str: float}:
