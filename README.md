@@ -55,7 +55,19 @@ about each parameter:
 - slack
   - webhook_url: your slack webhook url
 
-### 5. Run the server
+### 5-1. Run the server
 ```bash
-python app.py
+python main.py
 ```
+
+### 5-2. Run the server on sakura vps
+```bash
+sudo nohup /home/ubuntu/tv-subscriber/.venv/bin/python /home/ubuntu/tv-subscriber/main.py &
+```
+### 6. Set up  alert on TradingView
+- Create a new alert
+- Set up the alert message
+    - example: `{{strategy.order.alert_message}}`
+- Set up webhook url
+    - example: `http://(your server ip)`
+
